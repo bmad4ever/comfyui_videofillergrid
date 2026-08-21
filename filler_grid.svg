@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 330" font-family="system-ui, -apple-system, sans-serif" font-size="14">
+  <rect width="560" height="330" fill="#1a1a1a" rx="8"/>
+  <text x="280" y="28" fill="#e0e0e0" text-anchor="middle" font-size="16" font-weight="600">Filler grid — 3 sources (A, B, C)</text>
+
+  <!-- column headers: target source clip index -->
+  <text x="180" y="62" fill="#9ac" text-anchor="middle" font-size="12" font-weight="600" dominant-baseline="middle">A (0)</text>
+  <text x="280" y="62" fill="#9ac" text-anchor="middle" font-size="12" font-weight="600" dominant-baseline="middle">B (1)</text>
+  <text x="380" y="62" fill="#9ac" text-anchor="middle" font-size="12" font-weight="600" dominant-baseline="middle">C (2)</text>
+
+  <!-- row headers: source clip index -->
+  <text x="135" y="108" fill="#9cf" text-anchor="end" font-size="12" font-weight="600" dominant-baseline="middle">A (0)</text>
+  <text x="135" y="183" fill="#9cf" text-anchor="end" font-size="12" font-weight="600" dominant-baseline="middle">B (1)</text>
+  <text x="135" y="258" fill="#9cf" text-anchor="end" font-size="12" font-weight="600" dominant-baseline="middle">C (2)</text>
+
+  <!-- all 9 filler cells: filler index k = s*N + t -->
+  <rect x="145" y="80" width="70" height="55" fill="#1f3a5f" stroke="#4a90d9" stroke-width="1.5"/>
+  <text x="180" y="113" fill="#9cf" text-anchor="middle" font-size="12" font-weight="600">A→A (0)</text>
+  <rect x="245" y="80" width="70" height="55" fill="#1f3a5f" stroke="#4a90d9" stroke-width="1.5"/>
+  <text x="280" y="113" fill="#9cf" text-anchor="middle" font-size="12" font-weight="600">A→B (1)</text>
+  <rect x="345" y="80" width="70" height="55" fill="#1f3a5f" stroke="#4a90d9" stroke-width="1.5"/>
+  <text x="380" y="113" fill="#9cf" text-anchor="middle" font-size="12" font-weight="600">A→C (2)</text>
+
+  <rect x="145" y="155" width="70" height="55" fill="#1f3a5f" stroke="#4a90d9" stroke-width="1.5"/>
+  <text x="180" y="188" fill="#9cf" text-anchor="middle" font-size="12" font-weight="600">B→A (3)</text>
+  <rect x="245" y="155" width="70" height="55" fill="#1f3a5f" stroke="#4a90d9" stroke-width="1.5"/>
+  <text x="280" y="188" fill="#9cf" text-anchor="middle" font-size="12" font-weight="600">B→B (4)</text>
+  <rect x="345" y="155" width="70" height="55" fill="#1f3a5f" stroke="#4a90d9" stroke-width="1.5"/>
+  <text x="380" y="188" fill="#9cf" text-anchor="middle" font-size="12" font-weight="600">B→C (5)</text>
+
+  <rect x="145" y="230" width="70" height="55" fill="#1f3a5f" stroke="#4a90d9" stroke-width="1.5"/>
+  <text x="180" y="263" fill="#9cf" text-anchor="middle" font-size="12" font-weight="600">C→A (6)</text>
+  <rect x="245" y="230" width="70" height="55" fill="#1f3a5f" stroke="#4a90d9" stroke-width="1.5"/>
+  <text x="280" y="263" fill="#9cf" text-anchor="middle" font-size="12" font-weight="600">C→B (7)</text>
+  <rect x="345" y="230" width="70" height="55" fill="#1f3a5f" stroke="#4a90d9" stroke-width="1.5"/>
+  <text x="380" y="263" fill="#9cf" text-anchor="middle" font-size="12" font-weight="600">C→C (8)</text>
+</svg>

@@ -1,7 +1,7 @@
 # ComfyUI VideoFillerGrid
 
-A single node, **VideoFillerGrid Assemble**, that joins source clips and the
-generated transition clips that bridge them into one video, following an order
+A single node, **VideoFillerGrid Assemble**, that joins source clips and 
+(generated) transition clips that bridge them into one video, following an order
 list, and writes it straight to disk.
 
 

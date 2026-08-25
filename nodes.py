@@ -30,6 +30,7 @@ import torch
 
 import comfy.utils
 import folder_paths
+from comfy_api.input_impl import VideoFromFile
 
 OUT_SAMPLE_RATE = 48000
 OUT_CHANNELS = 2
@@ -73,8 +74,8 @@ class VideoFillerGridAssemble:
     # every clip and every filler must arrive together, not one expansion at a time
     INPUT_IS_LIST = True
 
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("path",)
+    RETURN_TYPES = ("STRING", "VIDEO")
+    RETURN_NAMES = ("path", "video")
     FUNCTION = "assemble"
     CATEGORY = "video"
     OUTPUT_NODE = True
@@ -164,10 +165,23 @@ class VideoFillerGridAssemble:
         if not units:
             raise ValueError("order list is empty")
 
+        # Progress covers the whole run, not just the encode: decoding N + N*N
+        # sources and writing the sidecars are each slow enough that a bar
+        # confined to the video pass looks hung at both ends. The frame count is
+        # unknown until the plan is built, so the total starts at the decode
+        # steps and is raised in place once the plan exists.
+        decode_steps = len(clips) + len(fillers)
+        pbar = comfy.utils.ProgressBar(decode_steps)
+        step = 0
+
         # Decode each distinct source exactly once. This is the whole memory
         # story: N + N*N segments resident, regardless of how long the cut is.
-        clip_parts = [v.get_components() for v in clips]
-        fill_parts = [v.get_components() for v in fillers]
+        clip_parts, fill_parts = [], []
+        for videos, parts in ((clips, clip_parts), (fillers, fill_parts)):
+            for video in videos:
+                parts.append(video.get_components())
+                step += 1
+                pbar.update_absolute(step)
 
         fps = Fraction(fill_parts[0].frame_rate)
         height, width = clip_parts[0].images.shape[1], clip_parts[0].images.shape[2]
@@ -198,6 +212,14 @@ class VideoFillerGridAssemble:
             if target_frames is not None and frame_idx >= target_frames:
                 break
         total_frames = frame_idx
+        if not plan:
+            raise ValueError(
+                f"seconds={seconds} is shorter than one frame at {float(fps)} fps")
+
+        # One step per encoded frame, per audio segment, and per sidecar written.
+        save_steps = (len(fillers) + 1) if save_sources else 0
+        total_steps = decode_steps + total_frames + len(plan) + save_steps
+        pbar.update_absolute(step, total_steps)
 
         logging.info(
             "VideoFillerGrid: %d units, %d clips + %d fillers, %dx%d @ %s fps -> %d frames%s",
@@ -230,6 +252,8 @@ class VideoFillerGridAssemble:
                 for i in range(take):
                     vf = av.VideoFrame.from_ndarray(rgb[i], format="rgb24")
                     output.mux(vstream.encode(vf.reformat(format=pix_fmt)))
+                    step += 1
+                    pbar.update_absolute(step)
             output.mux(vstream.encode(None))
 
             # Pass 2: audio, in the same order. Each segment's sample count is
@@ -266,6 +290,8 @@ class VideoFillerGridAssemble:
                     fifo.write(af)
                     drain()
                 frame_idx += take
+                step += 1
+                pbar.update_absolute(step)
 
             drain(final=True)
             output.mux(astream.encode(None))
@@ -286,14 +312,26 @@ class VideoFillerGridAssemble:
             os.makedirs(src_dir, exist_ok=True)
             for i, video in enumerate(fillers):
                 video.save_to(os.path.join(src_dir, f"f_{i:05}.mp4"))
+                step += 1
+                pbar.update_absolute(step)
             with open(os.path.join(src_dir, "order.txt"), "w", encoding="utf-8") as fh:
                 fh.write("\n".join(f"{s},{f}" for s, f in units))
+            step += 1
+            pbar.update_absolute(step)
             logging.info("VideoFillerGrid: wrote %d fillers + order.txt to %s",
                          len(fillers), src_dir)
 
+        pbar.update_absolute(total_steps)
+
+        # The mp4 is already on disk, so the VIDEO output wraps the file rather
+        # than holding the whole cut in memory again. The ui entry is the one
+        # SaveVideo emits, so the node previews its own result.
         return {
-            "ui": {"images": []},
-            "result": (path,),
+            "ui": {
+                "images": [{"filename": file, "subfolder": subfolder, "type": "output"}],
+                "animated": (True,),
+            },
+            "result": (path, VideoFromFile(path)),
         }
 
 

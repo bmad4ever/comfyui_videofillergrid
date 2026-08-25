@@ -1,7 +1,7 @@
 [project]
 name = "videofillergrid"
 description = "A single node, VideoFillerGrid Assemble, that joins source clips and (generated) transition clips that bridge them into one video, following an order list, and writes it straight to disk."
-version = "1.0.0"
+version = "1.1.0"
 license = "MIT"
 
 classifiers = [
